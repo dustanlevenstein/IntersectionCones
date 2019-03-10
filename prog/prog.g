@@ -1,7 +1,8 @@
 LoadPackage("hecke");
 
-SizeScreen([ 143, 43 ]); # calibrates two computers.
+SizeScreen([ 80, 43 ]); # calibrates two computers.
 
+# Generates an order function which sorts by p-cores first, so blocks are organized.
 generate_order_function := function(p)
 	local order_function;
 	order_function := function(mu, nu)

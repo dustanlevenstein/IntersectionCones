@@ -1,8 +1,11 @@
+# INTERSECTION_CONES_TOP_DIRECTORY = TODO
+
 # Currently, everything you could possibly want should be produced using
 # raw_cones
 # true_decomposition_matrices
 # blocked (both of the above folders in blocks)
 # computations (all of the computational data that is produced from the above)
+
 
 class rec(object):
 	# Duplicates the rec class in GAP.
@@ -22,32 +25,11 @@ class rec(object):
 	def __delattr__(self, at):
 		super(rec, self).__delattr__(at)
 		self._keys.remove(at)
-
-# Not sure what I was hoping to achieve with this block of code
-# # class which interacts with a folder containing data in p_*n_*.txt files.
-# class TopLevel(object):
-# 	# Folder name should start with "../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/"
-# 	def __init__(self, folder_name, gap=False):
-# 		self.folder_name = folder_name
-# 		self.gap = gap
-# 	def get(self, p, n):
-# 		filename = self.foldername + "p_%sn_%s.txt" %(p, n)
-# 		return FileInteract(filename, self.gap)
-# # File determines p, n.
-# # So most of our files should associate to a pair
-# # (core, length)
-# # a record.
-# class FileInteract(object):
-# 	def __init__(self, filename, gap=False)
-# 		self._filename = filename
-# 		self._gap = gap
-# 	def __setattr__(self, at, val):
-# 		# TODO
-# 		if self._gap:
-# 			raise Exception("TODO make more useful error message.")
-# 	def __delattr__(self, at):
-# 		# TODO
-# 		pass
+f = open("settings.txt", "r")
+s = f.read()
+f.close()
+s = s[6:].strip(" ;\n").replace(":=", "=")
+settings = eval(s)
 
 
 def get_top_filename(p, n=None, core=None, length=None):
@@ -157,7 +139,7 @@ def block_truncate_raw_cones(p, n=None):
 				assert len(P_p) == len(parts)
 				assert all(len(P_e) == len(parts) for P_e in P_es)
 			else:
-				# print "\t\t %s rows" % len(parts)
+				pass # print "\t\t %s rows" % len(parts)
 			f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_raw_cones/" + get_top_filename(
 	 		 p, n, core, length), "w")
 			f.write(repr(rec(P_p = P_p, P_es=P_es, parts=parts)))
@@ -232,7 +214,7 @@ def block_truncate_dec_mats(p, n=None):
 				gc.collect()
 				assert len(decmat) == len(parts)
 			else:
-				# print "\t\t %s rows" % len(parts)
+				pass # print "\t\t %s rows" % len(parts)
 			f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_decomposition_matrices/" + get_top_filename(
 	 		 p, n, core, length), "w")
 			f.write(repr(rec(decmat = decmat, parts=parts)))
@@ -736,4 +718,3 @@ def are_files_clean():
 			count1 += 1
 		else:
 			countplus += 1
-	# print count0, count1, countplus

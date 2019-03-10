@@ -1,6 +1,12 @@
+
 LoadPackage("hecke");
 
-SizeScreen([ 80, 43 ]); # calibrates two computers.
+SizeScreen([ 80, 43 ]); # calibrates computers.
+
+True := 1;
+False := 0;
+
+settings := ReadAsFunction("settings.txt");
 
 # Generates an order function which sorts by p-cores first, so blocks are organized.
 generate_order_function := function(p)

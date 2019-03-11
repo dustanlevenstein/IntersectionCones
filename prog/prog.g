@@ -27,10 +27,6 @@ generate_order_function := function(p)
 end;;
 ordering := generate_order_function(2); # Just for example. This should be changed when p is selected.
 
-debug_print := function(p)
-	Print(p);
-	end;;
-
 nonreduced_dual_cone_gens_raw := function(p, n, P_p, higher_order_cones)
 	local k, l_p, proj, e, P_e, P_etrans, PB_e, QB_e, l_e, vec, temp_rec, p_part, i, entry;
 	# First compute P, B, Q, B' for e=p.
@@ -57,7 +53,7 @@ nonreduced_dual_cone_gens_raw := function(p, n, P_p, higher_order_cones)
 				# Verify pi annihilates this row (just a sanity check).
 				for entry in QB_e[i]*P_p do
 					if entry <> 0 then
-						Print("Fuck.\n");
+						Print("This isn't possible.\n");
 					fi;
 				od;
 			fi;
@@ -111,7 +107,8 @@ dump_true_cones := function(p, n)
 	decmat := List(DecompositionMatrix(t mod p));
 	SortParallel(charparams, decmat, ordering);
 	filename := JoinStringsWithSeparator(
-		["../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/true_decomposition_matrices/p_", 
+		[settings.TRUE_CONES_DIRECTORY,
+		"p_",
 		ViewString(p),
 		"n_",
 		ViewString(n),
@@ -190,7 +187,8 @@ dump_raw_cones := function(p, n)
 	parts := generate_partitions(p, n);
 	r := nonreduced_dual_cone_gens_params(p, n);
 	filename := JoinStringsWithSeparator(
-		["../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/actually_raw_cones/p_", 
+		[settings.RAW_CONES_DIRECTORY, 
+			"p_", 
 			ViewString(p),
 			"n_",
 			ViewString(n),
@@ -199,22 +197,34 @@ dump_raw_cones := function(p, n)
 	AppendTo(filename, rec( P_p := r.P_p, P_es := r.P_es, parts := parts));
 end;;
 
-dump_all_raw_cones_given_p := function(p)
-	local n;
-	n := 1;
-	while true do
-		debug_print(ViewString(n));
-		debug_print("\n");
-		dump_raw_cones(p, n);
-		n := n+1;
+if settings.FILL_RAW_CONES then
+	p := settings.RC_MIN_PRIME;
+	while p <= settings.RC_MAX_PRIME do
+		if IsPrimeInt(p) then
+			n := settings.RC_MIN_SYMMETRIC_GP_N;
+			while n <= settings.RC_MAX_SYMMETRIC_GP_N do
+				Print("Dumping raw cones for p = ", p, " and n = ", n, ". \n");
+				dump_raw_cones(p, n);
+				n := n+1;
+			od;
+		fi;
+		p := p+1;
 	od;
-end;;
+fi;
 
-dump_all_raw_cones_given_p := function(p, n)
-	while true do
-		debug_print(ViewString(n));
-		debug_print("\n");
-		dump_raw_cones(p, n);
-		n := n+1;
+if settings.FILL_TRUE_CONES then
+	p := settings.TC_MIN_PRIME;
+	while p <= settings.TC_MAX_PRIME do
+		if IsPrimeInt(p) then
+			n := settings.TC_MIN_SYMMETRIC_GP_N;
+			while n <= settings.TC_MAX_SYMMETRIC_GP_N do
+				Print("Dumping raw cones for p = ", p, " and n = ", n, ". \n");
+				dump_true_cones(p, n);
+				n := n+1;
+			od;
+		fi;
+		p := p+1;
 	od;
-end;;
+fi;
+
+Print("Type \"quit;\" to continue. \n");

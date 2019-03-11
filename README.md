@@ -6,44 +6,44 @@ Some settings will need to be changed. The python3.5+ script run.py manages the 
 
 The settings are as follows:
 
-REWRITE_SETTINGS
-INTERSECTION_CONES_TOP_DIRECTORY
-GAP_FILENAME             
-SAGE_FILENAME            
+REWRITE\_SETTINGS
+INTERSECTION\_CONES\_TOP\_DIRECTORY
+GAP\_FILENAME             
+SAGE\_FILENAME            
                          
                          
-GAP_PROGRAM_FILENAME    
-SAGE_PROGRAM_FILENAME   
+GAP\_PROGRAM\_FILENAME    
+SAGE\_PROGRAM\_FILENAME   
 
-MK_RC_DIRECTORY         
-RAW_CONES_DIRECTORY     
-FILL_RAW_CONES          
-RC_MIN_PRIME            
-RC_MAX_PRIME            
-RC_MIN_SYMMETRIC_GP_N   
-RC_MAX_SYMMETRIC_GP_N   
+MK\_RC\_DIRECTORY         
+RAW\_CONES\_DIRECTORY     
+FILL\_RAW\_CONES          
+RC\_MIN\_PRIME            
+RC\_MAX\_PRIME            
+RC\_MIN\_SYMMETRIC\_GP\_N   
+RC\_MAX\_SYMMETRIC\_GP\_N   
 
-MK_TC_DIRECTORY         
-TRUE_CONES_DIRECTORY    
-FILL_TRUE_CONES         
-TC_MIN_PRIME            
-TC_MAX_PRIME            
-TC_MIN_SYMMETRIC_GP_N   
-TC_MAX_SYMMETRIC_GP_N   
+MK\_TC\_DIRECTORY         
+TRUE\_CONES\_DIRECTORY    
+FILL\_TRUE\_CONES         
+TC\_MIN\_PRIME            
+TC\_MAX\_PRIME            
+TC\_MIN\_SYMMETRIC\_GP\_N   
+TC\_MAX\_SYMMETRIC\_GP\_N   
 
-MK_BC_DIRECTORY         
-BLOCKED_CONES_DIRECTORY 
-FILL_BC_DIRECTORY       
+MK\_BC\_DIRECTORY         
+BLOCKED\_CONES\_DIRECTORY 
+FILL\_BC\_DIRECTORY       
                         
                         
-OVERWRITE_OLD_BCS       
+OVERWRITE\_OLD\_BCS       
 
-MK_IC_DIRECTORY         
-INT_CONES_DIRECTORY     
-FILL_IC_DIRECTORY       
+MK\_IC\_DIRECTORY         
+INT\_CONES\_DIRECTORY     
+FILL\_IC\_DIRECTORY       
                         
                         
-OVERWRITE_OLD_ICS       
+OVERWRITE\_OLD\_ICS       
                         
 
 

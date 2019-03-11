@@ -2,6 +2,8 @@
 
 Some settings will need to be changed. The python3.5+ script run.py manages the settings - simply go into the header of that file and edit the settings written there as needed.
 
+## Settings
+
 The settings are as follows:
 
 REWRITE_SETTINGS

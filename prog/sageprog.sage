@@ -1,5 +1,5 @@
-# INTERSECTION_CONES_TOP_DIRECTORY = TODO
-
+# This is a relic comment I'm keeping for my reference right now:
+#
 # Currently, everything you could possibly want should be produced using
 # raw_cones
 # true_decomposition_matrices
@@ -101,11 +101,11 @@ def block_truncate_raw_cones(p, n=None):
 	else:
 		principal_core = [principal_core]
 	# Look for principal block.
-	if os.path.isfile("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_raw_cones/" + get_top_filename(
+	if os.path.isfile(settings.BLOCKED_CONES_DIRECTORY + get_top_filename(
 	 p, n, principal_core, -1)):
 		# print "\tSkipping."
 		return
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/actually_raw_cones/" + filename, "r")
+	f = open(settings.RAW_CONES_DIRECTORY + filename, "r")
 	s = f.read()
 	f.close()
 	s = s[6:].strip(" ;\n").replace(":=", "=")
@@ -140,13 +140,13 @@ def block_truncate_raw_cones(p, n=None):
 				assert all(len(P_e) == len(parts) for P_e in P_es)
 			else:
 				pass # print "\t\t %s rows" % len(parts)
-			f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_raw_cones/" + get_top_filename(
+			f = open(settings.BLOCKED_CONES_DIRECTORY + get_top_filename(
 	 		 p, n, core, length), "w")
 			f.write(repr(rec(P_p = P_p, P_es=P_es, parts=parts)))
 			f.close()
 			gc.collect()
 def block_truncate_all_raw_cones():
-	for filename in sorted(os.listdir("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/actually_raw_cones/"),
+	for filename in sorted(os.listdir(settings.RAW_CONES_DIRECTORY),
 	 key = get_pncorelength_from_filename):
 		block_truncate_raw_cones(filename)
 
@@ -180,11 +180,11 @@ def block_truncate_dec_mats(p, n=None):
 	else:
 		principal_core = [principal_core]
 	# Look for principal block.
-	if os.path.isfile("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_decomposition_matrices/" + get_top_filename(
+	if os.path.isfile(settings.BLOCKED_CONES_DIRECTORY + get_top_filename(
 	 p, n, principal_core, -1)):
 		# print "\tSkipping."
 		return
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/true_decomposition_matrices/" + filename, "r")
+	f = open(settings.TRUE_CONES_DIRECTORY + filename, "r")
 	s = f.read()
 	f.close()
 	s = s[6:].strip(" ;\n").replace(":=", "=")
@@ -215,13 +215,13 @@ def block_truncate_dec_mats(p, n=None):
 				assert len(decmat) == len(parts)
 			else:
 				pass # print "\t\t %s rows" % len(parts)
-			f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_decomposition_matrices/" + get_top_filename(
+			f = open(settings.BLOCKED_CONES_DIRECTORY + get_top_filename(
 	 		 p, n, core, length), "w")
 			f.write(repr(rec(decmat = decmat, parts=parts)))
 			f.close()
 			gc.collect()
 def block_truncate_all_dec_mats():
-	for filename in sorted(os.listdir("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/true_decomposition_matrices/"),
+	for filename in sorted(os.listdir(settings.TRUE_CONES_DIRECTORY),
 	 key = get_pncorelength_from_filename):
 		block_truncate_dec_mats(filename)
 
@@ -273,7 +273,7 @@ def dualize(r):
 
 def get_blocked_raw_cones(p, n=None, core=None, length=None):
 	if n is not None:
-		filename = "../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_raw_cones/" + get_top_filename(p, n, core, length)
+		filename = settings.BLOCKED_CONES_DIRECTORY + get_top_filename(p, n, core, length)
 	else:
 		filename = p
 	f = open(filename, "r")
@@ -321,16 +321,8 @@ def dualize_raw_cones(p, n=None, core=None, length=None):
 	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/dual_raw_cones/" + filename, "w")
 	f.write(repr(r))
 	f.close()
-	# f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/displayed_intersection_raw_cones/" + filename, "w")
-	# f.write("Intersection of cones in adjustment matrix form.\n")
-	# f.write(get_nice_string_rep_of_matrix([ ( (r.preg_parts[i],) + r.intersection_adjustment_matrix[i])
-	#  for i in range(len(r.preg_parts))]))
-	# f.write("\nHecke algebra decomposition matrix.\n")
-	# f.write(get_nice_string_rep_of_matrix([ ( (r.parts[i],) + r.P_p[i])
-	#  for i in range(len(r.parts))]))
-	# f.close()
 def dualize_all_raw_cones():
-	for filename in sorted(os.listdir("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_raw_cones/"),
+	for filename in sorted(os.listdir(settings.BLOCKED_CONES_DIRECTORY),
 	 key = get_pncorelength_from_filename):
 		# print(filename)
 		dualize_raw_cones(filename)
@@ -348,7 +340,7 @@ def get_dualized_raw_cones(p, n=None, core=None, length=None):
 	return eval(s)
 def intersect_raw_cones(p, n=None, core=None, length=None):
 	# print "intersect_raw_cones(%s, %s, %s, %s)" %(p, n, core, length)
-	if os.path.isfile("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/intersection_raw_cones/" + get_top_filename(
+	if os.path.isfile(settings.INT_CONES_DIRECTORY + get_top_filename(
 	 p, n, core, length)):
 		# print "\tSkipping."
 		return
@@ -374,7 +366,7 @@ def intersect_raw_cones(p, n=None, core=None, length=None):
 		return
 	assert len(r.preg_parts) == len(r.intersection_adjustment_matrix)
 	filename = get_top_filename(p, n, core, length)
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/intersection_raw_cones/" + filename, "w")
+	f = open(settings.INT_CONES_DIRECTORY + filename, "w")
 	f.write(repr(r))
 	f.close()
 	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/displayed_intersection_raw_cones/" + filename, "w")
@@ -448,14 +440,14 @@ def get_induct_matrix_to(p, n, core, length, residue):
 		core_downstairs = core_downstairs)
 
 def get_blocked_dec_mat(p, n, core, length):
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_decomposition_matrices/" + 
+	f = open(settings.BLOCKED_CONES_DIRECTORY + 
 	 get_top_filename(p, n, core, length), "r")
 	s = f.read()
 	f.close()
 	return eval(s)
 
 def get_intersected_cones(p, n, core, length):
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/intersection_raw_cones/" + 
+	f = open(settings.INT_CONES_DIRECTORY + 
 	 get_top_filename(p, n, core, length), "r")
 	s = f.read()
 	f.close()
@@ -685,9 +677,9 @@ def generate_all_poss_adj():
 		gc.collect()
 
 def clean_up_files():
-	for filename in sorted(os.listdir("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_raw_cones/"),
+	for filename in sorted(os.listdir(settings.BLOCKED_CONES_DIRECTORY),
 	 key = get_pncorelength_from_filename):
-		f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_raw_cones/" + filename, "r")
+		f = open(settings.BLOCKED_CONES_DIRECTORY + filename, "r")
 		s = f.read()
 		f.close()
 		r = eval(s)
@@ -705,9 +697,9 @@ def are_files_clean():
 	count0 = 0
 	count1 = 0
 	countplus = 0
-	for filename in sorted(os.listdir("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_raw_cones/"),
+	for filename in sorted(os.listdir(settings.BLOCKED_CONES_DIRECTORY),
 	 key = get_pncorelength_from_filename):
-		f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_raw_cones/" + filename, "r")
+		f = open(settings.BLOCKED_CONES_DIRECTORY + filename, "r")
 		s = f.read()
 		f.close()
 		r = eval(s)

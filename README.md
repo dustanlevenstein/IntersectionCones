@@ -1,47 +1,47 @@
 # IntersectionCones
 
-REWRITE_SETTINGS         = True  # Change to False if you want to keep
-                                 # settings.txt as is.
+Some settings will need to be changed. The python3.5+ script run.py manages the settings - simply go into the header of that file and edit the settings written there as needed.
 
-INTERSECTION_CONES_TOP_DIRECTORY = \
-	"~/Dropbox/IntersectionCones" # Exclude trailing slash.
+The settings are as follows:
 
-GAP_FILENAME             = "~/Gap/gap-4.9.1/bin/gap.sh"
-SAGE_FILENAME            = "~/Sage/SageMath/sage"
-                           # Where you see "%s", read the top directory in
-                           # its place.
-GAP_PROGRAM_FILENAME     = "%s/prog/prog.g"
-SAGE_PROGRAM_FILENAME    = "%s/prog/sageprog.sage"
+REWRITE_SETTINGS
+INTERSECTION_CONES_TOP_DIRECTORY
+GAP_FILENAME             
+SAGE_FILENAME            
+                         
+                         
+GAP_PROGRAM_FILENAME    
+SAGE_PROGRAM_FILENAME   
 
-MK_RC_DIRECTORY          = True  # Change to False when directory exists
-RAW_CONES_DIRECTORY      = "%s/raw_cones/"
-FILL_RAW_CONES           = True
-RC_MIN_PRIME             = 2
-RC_MAX_PRIME             = 7
-RC_MIN_SYMMETRIC_GP_N    = 1
-RC_MAX_SYMMETRIC_GP_N    = 6
+MK_RC_DIRECTORY         
+RAW_CONES_DIRECTORY     
+FILL_RAW_CONES          
+RC_MIN_PRIME            
+RC_MAX_PRIME            
+RC_MIN_SYMMETRIC_GP_N   
+RC_MAX_SYMMETRIC_GP_N   
 
-MK_TC_DIRECTORY          = True  # Change to False when directory exists
-TRUE_CONES_DIRECTORY     = "%s/true_cones/"
-FILL_TRUE_CONES          = True
-TC_MIN_PRIME             = 2
-TC_MAX_PRIME             = 7
-TC_MIN_SYMMETRIC_GP_N    = 1
-TC_MAX_SYMMETRIC_GP_N    = 20
+MK_TC_DIRECTORY         
+TRUE_CONES_DIRECTORY    
+FILL_TRUE_CONES         
+TC_MIN_PRIME            
+TC_MAX_PRIME            
+TC_MIN_SYMMETRIC_GP_N   
+TC_MAX_SYMMETRIC_GP_N   
 
-MK_BC_DIRECTORY          = True  # Change to False when directory exists
-BLOCKED_CONES_DIRECTORY  = "%s/blocked_cones/"
-FILL_BC_DIRECTORY        = True  # This will fill in blocked cones for every
-                                 # file which exists in the raw cones
-                                 # directory.
-OVERWRITE_OLD_BCS        = False # Overwrite already existing blocked cones.
+MK_BC_DIRECTORY         
+BLOCKED_CONES_DIRECTORY 
+FILL_BC_DIRECTORY       
+                        
+                        
+OVERWRITE_OLD_BCS       
 
-MK_IC_DIRECTORY          = True  # Change to False when directory exists
-INT_CONES_DIRECTORY      = "%s/intersected_cones/"
-FILL_IC_DIRECTORY        = True  # This will fill in the intersection of
-                                 # every blocked cone which exists in the
-                                 # blocked cones directory.
-OVERWRITE_OLD_ICS        = False # Overwrite already existing intersections
-                                 # of cones.
+MK_IC_DIRECTORY         
+INT_CONES_DIRECTORY     
+FILL_IC_DIRECTORY       
+                        
+                        
+OVERWRITE_OLD_ICS       
+                        
 
 

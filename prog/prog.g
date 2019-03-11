@@ -3,10 +3,10 @@ LoadPackage("hecke");
 
 SizeScreen([ 80, 43 ]); # calibrates computers.
 
-True := 1;
-False := 0;
+True := true;
+False := false;
 
-settings := ReadAsFunction("settings.txt");
+settings := ReadAsFunction("settings.txt")();
 
 # Generates an order function which sorts by p-cores first, so blocks are organized.
 generate_order_function := function(p)
@@ -101,16 +101,8 @@ end;;
 LoadPackage( "ctbllib" );
 
 
-# Really all I need is:
-# gap> t := CharacterTable("S5");
-# CharacterTable( "A5.2" )
-# gap> CharacterParameters(t);
-# [ [ 1, [ 5 ] ], [ 1, [ 1, 1, 1, 1, 1 ] ], [ 1, [ 3, 1, 1 ] ], [ 1, [ 4, 1 ] ], [ 1, [ 2, 1, 1, 1 ] ], [ 1, [ 3, 2 ] ], [ 1, [ 2, 2, 1 ] ] ]
-# gap> DecompositionMatrix(t mod 2);
-# [ [ 1, 0, 0 ], [ 1, 0, 0 ], [ 2, 1, 0 ], [ 0, 0, 1 ], [ 0, 0, 1 ], [ 1, 1, 0 ], [ 1, 1, 0 ] ]
-
-# This time using stbllib instead of Hecke. Also I'll process the blocks in python because that's easier.
-dump_true_cones_2 := function(p, n)
+# Use stbllib instead of Hecke. Then I process the blocks in python because that's easier.
+dump_true_cones := function(p, n)
 	local sn, t, charparams, decmat, filename;
 	ordering := generate_order_function(p);
 	sn := Concatenation("S", ViewString(n));
@@ -126,22 +118,6 @@ dump_true_cones_2 := function(p, n)
 		".txt"], "");
 	PrintTo(filename, "return ");
 	AppendTo(filename, rec( parts := charparams, decmat := decmat));
-end;;
-
-dump_all_known_true_cones := function()
-	local primes, maxes, i, p, n;
-	primes := [3, 5, 7, 11, 13, 17];
-	maxes := [18, 18, 18, 17, 17, 17];
-	i := 1;
-	while i <= Length(primes) do
-		p := primes[i];
-		n := 4;
-		while n <= maxes[i] do
-			dump_true_cones_2(p, n);
-			n := n+1;
-		od;
-		i := i+1;
-	od;
 end;;
 
 generate_partitions := function(p, n)
@@ -207,7 +183,7 @@ end;;
 
 
 
-dump_raw_cones_2 := function(p, n)
+dump_raw_cones := function(p, n)
 	local parts, r, filename;
 	ordering := generate_order_function(p);
 	
@@ -229,7 +205,7 @@ dump_all_raw_cones_given_p := function(p)
 	while true do
 		debug_print(ViewString(n));
 		debug_print("\n");
-		dump_raw_cones_2(p, n);
+		dump_raw_cones(p, n);
 		n := n+1;
 	od;
 end;;
@@ -238,7 +214,7 @@ dump_all_raw_cones_given_p := function(p, n)
 	while true do
 		debug_print(ViewString(n));
 		debug_print("\n");
-		dump_raw_cones_2(p, n);
+		dump_raw_cones(p, n);
 		n := n+1;
 	od;
 end;;

@@ -1,66 +1,133 @@
+
 import subprocess, os
 
 ############ HEADER --- these attributes may require modifying. ############
 
-INTERSECTION_CONES_TOP_DIRECTORY = os.path.expanduser(
-	"~/Dropbox/IntersectionCones") # Exclude trailing slash.
+REWRITE_SETTINGS         = True  # Change to False if you want to keep
+                                 # settings.txt as is.
 
-GAP_FILENAME             = os.path.expanduser("~/Gap/gap-4.9.1/bin/gap.sh")
-SAGE_FILENAME            = os.path.expanduser("~/Sage/SageMath/sage")
-# Where you see "%s", read the top directory in its place.
-GAP_PROGRAM_FILENAME     = os.path.expanduser("%s/prog/prog.g"
-	% INTERSECTION_CONES_TOP_DIRECTORY)
-SAGE_PROGRAM_FILENAME    = os.path.expanduser("%s/prog/sageprog.sage"
-	% INTERSECTION_CONES_TOP_DIRECTORY)
+INTERSECTION_CONES_TOP_DIRECTORY = \
+	"~/Dropbox/IntersectionCones" # Exclude trailing slash.
 
-MK_RC_DIRECTORY          = True # Change to false when directory exists
-RAW_CONES_DIRECTORY      = os.path.expanduser("%s/raw_cones/"
-	% INTERSECTION_CONES_TOP_DIRECTORY)
+GAP_FILENAME             = "~/Gap/gap-4.9.1/bin/gap.sh"
+SAGE_FILENAME            = "~/Sage/SageMath/sage"
+                           # Where you see "%s", read the top directory in
+                           # its place.
+GAP_PROGRAM_FILENAME     = "%s/prog/prog.g"
+SAGE_PROGRAM_FILENAME    = "%s/prog/sageprog.sage"
 
-MK_TC_DIRECTORY          = True # Change to false when directory exists
-TRUE_CONES_DIRECTORY     = os.path.expanduser("%s/true_cones/"
-	% INTERSECTION_CONES_TOP_DIRECTORY)
+MK_RC_DIRECTORY          = True  # Change to False when directory exists
+RAW_CONES_DIRECTORY      = "%s/raw_cones/"
+FILL_RAW_CONES           = True
+RC_MIN_PRIME             = 2
+RC_MAX_PRIME             = 7
+RC_MIN_SYMMETRIC_GP_N    = 1
+RC_MAX_SYMMETRIC_GP_N    = 6
 
-MK_BC_DIRECTORY          = True # Change to false when directory exists
-BLOCKED_CONES_DIRECTORY  = os.path.expanduser("%s/blocked_cones/"
-	% INTERSECTION_CONES_TOP_DIRECTORY)
+MK_TC_DIRECTORY          = True  # Change to False when directory exists
+TRUE_CONES_DIRECTORY     = "%s/true_cones/"
+FILL_TRUE_CONES          = True
+TC_MIN_PRIME             = 2
+TC_MAX_PRIME             = 7
+TC_MIN_SYMMETRIC_GP_N    = 1
+TC_MAX_SYMMETRIC_GP_N    = 20
 
-MK_IC_DIRECTORY          = True # Change to false when directory exists
-INT_CONES_DIRECTORY      = os.path.expanduser("%s/intersected_cones/"
-	% INTERSECTION_CONES_TOP_DIRECTORY)
+MK_BC_DIRECTORY          = True  # Change to False when directory exists
+BLOCKED_CONES_DIRECTORY  = "%s/blocked_cones/"
+FILL_BC_DIRECTORY        = True  # This will fill in blocked cones for every
+                                 # file which exists in the raw cones
+                                 # directory.
+OVERWRITE_OLD_BCS        = False # Overwrite already existing blocked cones.
+
+MK_IC_DIRECTORY          = True  # Change to False when directory exists
+INT_CONES_DIRECTORY      = "%s/intersected_cones/"
+FILL_IC_DIRECTORY        = True  # This will fill in the intersection of
+                                 # every blocked cone which exists in the
+                                 # blocked cones directory.
+OVERWRITE_OLD_ICS        = False # Overwrite already existing intersections
+                                 # of cones.
 
 ############                        END HEADER                  ############
 
 
+INTERSECTION_CONES_TOP_DIRECTORY = os.path.expanduser(INTERSECTION_CONES_TOP_DIRECTORY)
 
-# I'm sure there's a better way to communicate these settings forward,
-# but this is what I came up with.
-f = open("%s/settings.txt" % INTERSECTION_CONES_TOP_DIRECTORY, "w")
-f.write(
+GAP_FILENAME             = os.path.expanduser(GAP_FILENAME )
+SAGE_FILENAME            = os.path.expanduser(SAGE_FILENAME)
+
+GAP_PROGRAM_FILENAME     = os.path.expanduser(GAP_PROGRAM_FILENAME     % INTERSECTION_CONES_TOP_DIRECTORY)
+SAGE_PROGRAM_FILENAME    = os.path.expanduser(SAGE_PROGRAM_FILENAME    % INTERSECTION_CONES_TOP_DIRECTORY)
+RAW_CONES_DIRECTORY      = os.path.expanduser(RAW_CONES_DIRECTORY      % INTERSECTION_CONES_TOP_DIRECTORY)
+TRUE_CONES_DIRECTORY     = os.path.expanduser(TRUE_CONES_DIRECTORY     % INTERSECTION_CONES_TOP_DIRECTORY)
+BLOCKED_CONES_DIRECTORY  = os.path.expanduser(BLOCKED_CONES_DIRECTORY  % INTERSECTION_CONES_TOP_DIRECTORY)
+INT_CONES_DIRECTORY      = os.path.expanduser(INT_CONES_DIRECTORY      % INTERSECTION_CONES_TOP_DIRECTORY)
+
+
+
+if REWRITE_SETTINGS:
+
+    # I'm sure there's a better way to communicate these settings forward,
+    # but this is what I came up with.
+    f = open("%s/settings.txt" % INTERSECTION_CONES_TOP_DIRECTORY, "w")
+    f.write(
 	"""return rec(
 GAP_FILENAME             := "%s",
 SAGE_FILENAME            := "%s",
-
 GAP_PROGRAM_FILENAME     := "%s",
-SAGE_PROGRAM_FILENAME    := "%s",  
-
-MK_RC_DIRECTORY          := %s, 
-RAW_CONES_DIRECTORY      := "%s", 
-
-MK_TC_DIRECTORY          := %s, 
-TRUE_CONES_DIRECTORY     := "%s", 
-
-MK_BC_DIRECTORY          := %s, 
-BLOCKED_CONES_DIRECTORY  := "%s", 
-
-MK_IC_DIRECTORY          := %s, 
-INT_CONES_DIRECTORY      := "%s", 
+SAGE_PROGRAM_FILENAME    := "%s",
+MK_RC_DIRECTORY          := %s,
+RAW_CONES_DIRECTORY      := "%s",
+FILL_RAW_CONES           := %s,
+RC_MIN_PRIME             := %s,
+RC_MAX_PRIME             := %s,
+RC_MIN_SYMMETRIC_GP_N    := %s,
+RC_MAX_SYMMETRIC_GP_N    := %s,
+MK_TC_DIRECTORY          := %s,
+TRUE_CONES_DIRECTORY     := "%s",
+FILL_TRUE_CONES          := %s,
+TC_MIN_PRIME             := %s,
+TC_MAX_PRIME             := %s,
+TC_MIN_SYMMETRIC_GP_N    := %s,
+TC_MAX_SYMMETRIC_GP_N    := %s,
+MK_BC_DIRECTORY          := %s,
+BLOCKED_CONES_DIRECTORY  := "%s",
+FILL_BC_DIRECTORY        := %s,
+OVERWRITE_OLD_BCS        := %s,
+MK_IC_DIRECTORY          := %s,
+INT_CONES_DIRECTORY      := "%s",
+FILL_IC_DIRECTORY        := %s,
+OVERWRITE_OLD_ICS        := %s  
 );
-""" % (GAP_FILENAME, SAGE_FILENAME, GAP_PROGRAM_FILENAME, SAGE_PROGRAM_FILENAME, MK_RC_DIRECTORY,
-RAW_CONES_DIRECTORY, MK_TC_DIRECTORY, TRUE_CONES_DIRECTORY, MK_BC_DIRECTORY, BLOCKED_CONES_DIRECTORY,
-MK_IC_DIRECTORY, INT_CONES_DIRECTORY))
-f.flush()
-f.close()
+""" % (
+GAP_FILENAME            ,
+SAGE_FILENAME           ,
+GAP_PROGRAM_FILENAME    ,
+SAGE_PROGRAM_FILENAME   ,
+MK_RC_DIRECTORY         ,
+RAW_CONES_DIRECTORY     ,
+FILL_RAW_CONES          ,
+RC_MIN_PRIME            ,
+RC_MAX_PRIME            ,
+RC_MIN_SYMMETRIC_GP_N   ,
+RC_MAX_SYMMETRIC_GP_N   ,
+MK_TC_DIRECTORY         ,
+TRUE_CONES_DIRECTORY    ,
+FILL_TRUE_CONES         ,
+TC_MIN_PRIME            ,
+TC_MAX_PRIME            ,
+TC_MIN_SYMMETRIC_GP_N   ,
+TC_MAX_SYMMETRIC_GP_N   ,
+MK_BC_DIRECTORY         ,
+BLOCKED_CONES_DIRECTORY ,
+FILL_BC_DIRECTORY       ,
+OVERWRITE_OLD_BCS       ,
+MK_IC_DIRECTORY         ,
+INT_CONES_DIRECTORY     ,
+FILL_IC_DIRECTORY       ,
+OVERWRITE_OLD_ICS       ,
+    ))
+    f.flush()
+    f.close()
 
 subprocess.run(["sh", GAP_FILENAME, "-l", ";%s"%INTERSECTION_CONES_TOP_DIRECTORY, GAP_PROGRAM_FILENAME])
 subprocess.run([SAGE_FILENAME, SAGE_PROGRAM_FILENAME])

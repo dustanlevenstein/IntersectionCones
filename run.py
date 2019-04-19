@@ -44,6 +44,9 @@ FILL_IC_DIRECTORY        = False # This will fill in the intersection of
 OVERWRITE_OLD_ICS        = False # Overwrite already existing intersections
                                  # of cones.
 
+MK_DC_DIRECTORY          = True  # Change to False when directory exists
+DUAL_CONES_DIRECTORY     = "%s/dual_cones/"
+
 ############    END HEADER - EDIT FOLLOWING AT YOUR OWN RISK    ############
 
 import subprocess, os

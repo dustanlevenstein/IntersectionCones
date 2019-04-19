@@ -295,7 +295,7 @@ def is_p_regular(p, partition):
 	return True
 def dualize_raw_cones(p, n=None, core=None, length=None):
 	# print "dualize_raw_cones(%s, %s, %s, %s)" %(p, n, core, length)
-	if os.path.isfile("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/dual_raw_cones/" + get_top_filename(
+	if os.path.isfile(settings.DUALTODO + get_top_filename(
 	 p, n, core, length)):
 		# print "\tSkipping."
 		return
@@ -318,7 +318,7 @@ def dualize_raw_cones(p, n=None, core=None, length=None):
 		# print "\tError occurred in processing."
 		return
 	filename = get_top_filename(p, n, core, length)
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/dual_raw_cones/" + filename, "w")
+	f = open(settings.DUALTODO + filename, "w")
 	f.write(repr(r))
 	f.close()
 def dualize_all_raw_cones():
@@ -330,10 +330,10 @@ def dualize_all_raw_cones():
 		gc.collect()
 def get_dualized_raw_cones(p, n=None, core=None, length=None):
 	if n is not None:
-		filename = "../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/dual_raw_cones/" + get_top_filename(
+		filename = settings.DUALTODO + get_top_filename(
 		 p, n, core, length)
 	else:
-		filename = "../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/dual_raw_cones/" + p
+		filename = settings.DUALTODO + p
 	f = open(filename, "r")
 	s = f.read()
 	f.close()
@@ -369,7 +369,7 @@ def intersect_raw_cones(p, n=None, core=None, length=None):
 	f = open(settings.INT_CONES_DIRECTORY + filename, "w")
 	f.write(repr(r))
 	f.close()
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/displayed_intersection_raw_cones/" + filename, "w")
+	f = open(settings.INTCONESDISPLAYED_TODO + filename, "w")
 	f.write("Intersection of cones in adjustment matrix form.\n")
 	f.write(get_nice_string_rep_of_matrix([ ( (r.preg_parts[i],) + r.intersection_adjustment_matrix[i])
 	 for i in range(len(r.preg_parts))]))
@@ -379,7 +379,7 @@ def intersect_raw_cones(p, n=None, core=None, length=None):
 	f.close()
 
 def intersect_all_raw_cones():
-	for filename in sorted(os.listdir("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_raw_cones/"),
+	for filename in sorted(os.listdir(settings.RAW_CONES_DIRECTORY),
 	 key = get_pncorelength_from_filename):
 		# print(filename)
 		intersect_raw_cones(filename)
@@ -462,7 +462,7 @@ def induce_true_dec_mats_to(p, n=None, core=None, length=None):
 		# print "\tSkipping (don't have true dec mat)."
 		return
 	filename = get_top_filename(p, n, core, length)
-	if os.path.isfile("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/induced_cone_human/" + filename):
+	if os.path.isfile(settings.INDHUMAN_TODO + filename):
 		# print "\tSkipping (already did)."
 		return
 	f_is = []
@@ -511,17 +511,17 @@ def induce_true_dec_mats_to(p, n=None, core=None, length=None):
 	cone = matrix_to_list(
 	 matrix(list(reversed(sorted(tuple(row.vector()) for row in poly.Vrepresentation() if row.is_ray())))).transpose())
 	# print "\t\tFor machine."
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/induced_cone_machine/" + filename, "w")
+	f = open(settings.INDUCED_MACHINE_TODO + filename, "w")
 	f.write(repr(rec(induced_cone = cone, P_p = r.P_p, preg_parts = r.preg_parts, parts = r.parts)))
 	f.close()
 	# print "\t\tFor hooman."
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/induced_cone_human/" + filename, "w")
+	f = open(settings.INDHUMAN_TODO + filename, "w")
 	f.write(get_nice_string_rep_of_matrix([ ( (r.preg_parts[j],) + cone[j])
 	 for j in range(len(r.preg_parts))]))
 	f.write("\n")
 	f.close()
 def induce_all_dec_mats():
-	for filename in sorted(os.listdir("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/blocked_raw_cones/"),
+	for filename in sorted(os.listdir(settings.RAW_CONES_DIRECTORY),
 	 key = get_pncorelength_from_filename):
 		# print(filename)
 		induce_true_dec_mats_to(filename)
@@ -537,19 +537,19 @@ def generate_poss_adj(p, n=None, core=None, length=None):
 	if n is None:
 		(p, n, core, length) = get_pncorelength_from_filename(p)
 	filename = get_top_filename(p, n, core, length)
-	if not os.path.isfile("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/induced_cone_machine/" + filename):
+	if not os.path.isfile(settings.INDUCED_MACHINE_TODO + filename):
 		# print "\tSkipping (don't have induced cone)."
 		return
-	if not os.path.isfile("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/dual_raw_cones/" + filename):
+	if not os.path.isfile(settings.DUALTODO + filename):
 		# print "\tSkipping (don't have dual intersection of cones)."
 		return
-	if os.path.isfile("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/poss_adj_human/" + filename):
+	if os.path.isfile(settings.POSS_HUMAN_TODO + filename):
 		# print "\tSkipping (already did)."
 		return
 	#if p <= 5: # TODO this is just to skip some hard cases.
 	#	print "\tSkipping."
 	#	return
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/induced_cone_machine/" + filename, "r")
+	f = open(settings.INDUCED_MACHINE_TODO + filename, "r")
 	s = f.read()
 	f.close()
 	r_induced_cone = eval(s)
@@ -657,10 +657,10 @@ def generate_poss_adj(p, n=None, core=None, length=None):
 		# print "\tError occurred in processing."
 		return
 	# Whew! Finally, I need to record this in poss_adj_machine and poss_adj_human.
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/poss_adj_machine/" + filename, "w")
+	f = open(settings.POSS_MACHINE_TODO + filename, "w")
 	f.write(repr(rec(possible_adjustment_matrices = possible_adjustment_matrices, parts = parts)))
 	f.close()
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/poss_adj_human/" + filename, "w")
+	f = open(settings.POSS_HUMAN_TODO + filename, "w")
 	for adj in possible_adjustment_matrices:
 		f.write(get_nice_string_rep_of_matrix([ ( (parts[j],) + adj[j])
 		 for j in range(square_dim)]))
@@ -669,7 +669,7 @@ def generate_poss_adj(p, n=None, core=None, length=None):
 	# Now pray all that works.
 	# Holy hell. All I had to do was fix a reference to first_nonzero_entry.
 def generate_all_poss_adj():
-	for filename in sorted(os.listdir("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/induced_cone_machine/"),
+	for filename in sorted(os.listdir(settings.INDUCED_MACHINE_TODO),
 	 key = get_pncorelength_from_filename):
 		# print(filename)
 		generate_poss_adj(filename)
@@ -689,7 +689,7 @@ def clean_up_files():
 			for directory in ("blocked_decomposition_matrices", "blocked_raw_cones", "displayed_intersection_raw_cones",
 			 "dual_raw_cones", "f_i_human", "f_i_machine", "induced_cone_human", "induced_cone_machine", "intersection_raw_cones",
 			 "poss_adj_human", "poss_adj_machine"):
-				toats = "../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/%s/%s" % (directory, filename)
+				toats = "%s/%s" % (directory, filename) # TODO update these to use settings.
 				if os.path.isfile(toats):
 					os.remove(toats)
 

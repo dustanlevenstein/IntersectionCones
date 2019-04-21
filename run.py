@@ -6,46 +6,45 @@ REWRITE_SETTINGS         = True  # Change to False if you want to keep
 INTERSECTION_CONES_TOP_DIRECTORY = \
 	"~/Dropbox/IntersectionCones" # Exclude trailing slash.
 
-GAP_FILENAME             = "~/Gap/gap-4.9.1/bin/gap.sh"
-SAGE_FILENAME            = "~/Sage/SageMath/sage"
-                           # Where you see "%s", read the top directory in
-                           # its place.
-GAP_PROGRAM_FILENAME     = "%s/prog/prog.g"
-SAGE_PROGRAM_FILENAME    = "%s/prog/sageprog.sage"
+GAP_FILENAME                 = "~/Gap/gap-4.9.1/bin/gap.sh"
+SAGE_FILENAME                = "~/Sage/SageMath/sage"
+                              # Where you see "%s", read the top directory in
+                              # its place.
+GAP_PROGRAM_FILENAME         = "%s/prog/prog.g"
+SAGE_PROGRAM_FILENAME        = "%s/prog/sageprog.sage"
 
-MK_RC_DIRECTORY          = False # Change to False when directory exists
-RAW_CONES_DIRECTORY      = "%s/raw_cones/"
-FILL_RAW_CONES           = True 
-RC_MIN_PRIME             = 2
-RC_MAX_PRIME             = 5
-RC_MIN_SYMMETRIC_GP_N    = 1
-RC_MAX_SYMMETRIC_GP_N    = 6
+RAW_CONES_DIRECTORY          = "%s/raw_cones/"
 
-MK_TC_DIRECTORY          = False # Change to False when directory exists
-TRUE_CONES_DIRECTORY     = "%s/true_cones/"
-FILL_TRUE_CONES          = False
-TC_MIN_PRIME             = 2
-TC_MAX_PRIME             = 5
-TC_MIN_SYMMETRIC_GP_N    = 1
-TC_MAX_SYMMETRIC_GP_N    = 20
+RC_MIN_PRIME                 = input("Indicate the smallest prime number for which"
+                                " you wish to generate Hecke algebra cones."
+                                " (2 would be a good choice.) ")
+RC_MAX_PRIME                 = input("Indicate the largest prime number for which"
+                                " you wish to generate Hecke algebra cones."
+                                " (e.g., 5.) ")
+RC_MIN_SYMMETRIC_GP_N        = input("Indicate the smallest symmetric group for"
+                                 " which you wish to generate cones.")
+RC_MAX_SYMMETRIC_GP_N        = input("Indicate the largest symmetric group for"
+                                 " which you wish to generate cones.")
 
-MK_BC_DIRECTORY          = False # Change to False when directory exists
-BLOCKED_CONES_DIRECTORY  = "%s/blocked_cones/"
-FILL_BC_DIRECTORY        = False # This will fill in blocked cones for every
-                                 # file which exists in the raw cones
-                                 # directory.
-OVERWRITE_OLD_BCS        = False # Overwrite already existing blocked cones.
+TRUE_CONES_DIRECTORY         = "%s/true_cones/"
+TC_MIN_PRIME                 = 2
+TC_MAX_PRIME                 = 5
+TC_MIN_SYMMETRIC_GP_N        = 1
+TC_MAX_SYMMETRIC_GP_N        = 10
 
-MK_IC_DIRECTORY          = False # Change to False when directory exists
-INT_CONES_DIRECTORY      = "%s/intersected_cones/"
-FILL_IC_DIRECTORY        = False # This will fill in the intersection of
-                                 # every blocked cone which exists in the
-                                 # blocked cones directory.
-OVERWRITE_OLD_ICS        = False # Overwrite already existing intersections
-                                 # of cones.
+BLOCKED_CONES_DIRECTORY      = "%s/blocked_raw_cones/"
+BLOCKED_TRUE_CONES_DIRECTORY = "%s/blocked_true_cones/"
 
-MK_DC_DIRECTORY          = True  # Change to False when directory exists
-DUAL_CONES_DIRECTORY     = "%s/dual_cones/"
+DUAL_CONES_DIRECTORY         = "%s/dual_cones/"
+INT_CONES_DIRECTORY          = "%s/intersected_cones/"
+
+F_I_MACHINE_DIRECTORY        = "%s/f_i_machine/"
+F_I_HUMAN_DIRECTORY          = "%S/f_i_human/"
+IND_HUMAN_DIRECTORY          = "%s/ind_human/"
+IND_MACHINE_DIRECTORY        = "%s/ind_machine/"
+
+POSS_MACHINE_DIRECTORY       = "%s/poss_adj_machine/"
+POSS_HUMAN_DIRECTORY         = "%s/poss_adj_human/"
 
 ############    END HEADER - EDIT FOLLOWING AT YOUR OWN RISK    ############
 
@@ -77,60 +76,56 @@ if REWRITE_SETTINGS:
     f = open("%s/settings.txt" % INTERSECTION_CONES_TOP_DIRECTORY, "w")
     f.write(
 	"""return rec(
-GAP_FILENAME             := "%s",
-SAGE_FILENAME            := "%s",
-GAP_PROGRAM_FILENAME     := "%s",
-SAGE_PROGRAM_FILENAME    := "%s",
-MK_RC_DIRECTORY          := %s,
-RAW_CONES_DIRECTORY      := "%s",
-FILL_RAW_CONES           := %s,
-RC_MIN_PRIME             := %s,
-RC_MAX_PRIME             := %s,
-RC_MIN_SYMMETRIC_GP_N    := %s,
-RC_MAX_SYMMETRIC_GP_N    := %s,
-MK_TC_DIRECTORY          := %s,
-TRUE_CONES_DIRECTORY     := "%s",
-FILL_TRUE_CONES          := %s,
-TC_MIN_PRIME             := %s,
-TC_MAX_PRIME             := %s,
-TC_MIN_SYMMETRIC_GP_N    := %s,
-TC_MAX_SYMMETRIC_GP_N    := %s,
-MK_BC_DIRECTORY          := %s,
-BLOCKED_CONES_DIRECTORY  := "%s",
-FILL_BC_DIRECTORY        := %s,
-OVERWRITE_OLD_BCS        := %s,
-MK_IC_DIRECTORY          := %s,
-INT_CONES_DIRECTORY      := "%s",
-FILL_IC_DIRECTORY        := %s,
-OVERWRITE_OLD_ICS        := %s  
+GAP_FILENAME                 := "%s",
+SAGE_FILENAME                := "%s",
+GAP_PROGRAM_FILENAME         := "%s",
+SAGE_PROGRAM_FILENAME        := "%s",
+RAW_CONES_DIRECTORY          := "%s",
+RC_MIN_PRIME                 := %s,
+RC_MAX_PRIME                 := %s,
+RC_MIN_SYMMETRIC_GP_N        := %s,
+RC_MAX_SYMMETRIC_GP_N        := %s,
+TRUE_CONES_DIRECTORY         := "%s",
+TC_MIN_PRIME                 := %s,
+TC_MAX_PRIME                 := %s,
+TC_MIN_SYMMETRIC_GP_N        := %s,
+TC_MAX_SYMMETRIC_GP_N        := %s,
+BLOCKED_CONES_DIRECTORY      := "%s",
+BLOCKED_TRUE_CONES_DIRECTORY := "%s",
+DUAL_CONES_DIRECTORY         := "%s",
+INT_CONES_DIRECTORY          := "%s",
+F_I_MACHINE_DIRECTORY        := "%s",
+F_I_HUMAN_DIRECTORY          := "%s",
+IND_HUMAN_DIRECTORY          := "%s",
+IND_MACHINE_DIRECTORY        := "%s",
+POSS_MACHINE_DIRECTORY       := "%s",
+POSS_HUMAN_DIRECTORY         := "%s",
 );
 """ % (
-GAP_FILENAME            ,
-SAGE_FILENAME           ,
-GAP_PROGRAM_FILENAME    ,
-SAGE_PROGRAM_FILENAME   ,
-MK_RC_DIRECTORY         ,
-RAW_CONES_DIRECTORY     ,
-FILL_RAW_CONES          ,
-RC_MIN_PRIME            ,
-RC_MAX_PRIME            ,
-RC_MIN_SYMMETRIC_GP_N   ,
-RC_MAX_SYMMETRIC_GP_N   ,
-MK_TC_DIRECTORY         ,
-TRUE_CONES_DIRECTORY    ,
-FILL_TRUE_CONES         ,
-TC_MIN_PRIME            ,
-TC_MAX_PRIME            ,
-TC_MIN_SYMMETRIC_GP_N   ,
-TC_MAX_SYMMETRIC_GP_N   ,
-MK_BC_DIRECTORY         ,
-BLOCKED_CONES_DIRECTORY ,
-FILL_BC_DIRECTORY       ,
-OVERWRITE_OLD_BCS       ,
-MK_IC_DIRECTORY         ,
-INT_CONES_DIRECTORY     ,
-FILL_IC_DIRECTORY       ,
-OVERWRITE_OLD_ICS       ,
+GAP_FILENAME                ,
+SAGE_FILENAME               ,
+GAP_PROGRAM_FILENAME        ,
+SAGE_PROGRAM_FILENAME       ,
+RAW_CONES_DIRECTORY         ,
+RC_MIN_PRIME                ,
+RC_MAX_PRIME                ,
+RC_MIN_SYMMETRIC_GP_N       ,
+RC_MAX_SYMMETRIC_GP_N       ,
+TRUE_CONES_DIRECTORY        ,
+TC_MIN_PRIME                ,
+TC_MAX_PRIME                ,
+TC_MIN_SYMMETRIC_GP_N       ,
+TC_MAX_SYMMETRIC_GP_N       ,
+BLOCKED_CONES_DIRECTORY     ,
+BLOCKED_TRUE_CONES_DIRECTORY,
+DUAL_CONES_DIRECTORY        ,
+INT_CONES_DIRECTORY         ,
+F_I_MACHINE_DIRECTORY       ,
+F_I_HUMAN_DIRECTORY         ,
+IND_HUMAN_DIRECTORY         ,
+IND_MACHINE_DIRECTORY       ,
+POSS_MACHINE_DIRECTORY      ,
+POSS_HUMAN_DIRECTORY        
     ))
     f.flush()
     f.close()

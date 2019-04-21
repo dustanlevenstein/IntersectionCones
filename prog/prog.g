@@ -218,7 +218,7 @@ if settings.FILL_TRUE_CONES then
 		if IsPrimeInt(p) then
 			n := settings.TC_MIN_SYMMETRIC_GP_N;
 			while n <= settings.TC_MAX_SYMMETRIC_GP_N do
-				Print("Dumping raw cones for p = ", p, " and n = ", n, ". \n");
+				Print("Dumping true cones for p = ", p, " and n = ", n, ". \n");
 				dump_true_cones(p, n);
 				n := n+1;
 			od;

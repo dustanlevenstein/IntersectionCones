@@ -31,7 +31,9 @@ f.close()
 s = s[6:].strip(" ;\n").replace(":=", "=")
 settings = eval(s)
 
-
+# Note that core and length come from a legacy version of this code; this version
+# collects all cores and lengths into a single p_*n_*.txt file, for each type of data
+# one would want to see.
 def get_top_filename(p, n=None, core=None, length=None):
 	"""
 	(p, n, core, length) -> "p_**n_**core_**_length_**.txt"
@@ -72,6 +74,50 @@ def get_pncorelength_from_filename(filename):
 		if length != "infinity": length = int(length)
 	return (p, n, core, length)
 
+# This is where the files for a fixed p and n get consolidated for various cores and lengths.
+def store_result(p, n, core, length, folder_path, data):
+	if not os.path.isdir(folder_path):
+		os.mkdir(folder_path)
+	filename = folder_path + get_top_filename(p, n)
+	if not os.path.isfile(filename):
+		larger_data = {}
+	else:
+		f = open(filename, "r")
+		larger_data = eval(f.read())
+		f.close()
+	larger_data[(p, n, tuple(core), length)] = data
+	f = open(filename, "w")
+	f.write(repr(larger_data))
+	f.flush()
+	f.close()
+def fetch_result(p, n, core, length, folder_path):
+	filename = folder_path + get_top_filename(p, n)
+	f = open(filename, "r")
+	larger_data = eval(f.read())
+	f.close()
+	return larger_data[(p, n, tuple(core), length)]
+def fetch_keys(p, n, folder_path):
+	filename = folder_path + get_top_filename(p, n)
+	f = open(filename, "r")
+	data = eval(f.read())
+	f.close()
+	return data.keys()
+def fetch_exists(p, n, core, length, folder_path):
+	filename = folder_path + get_top_filename(p, n)
+	if not os.path.isfile(filename):
+		return False
+	f = open(filename, "r")
+	larger_data = eval(f.read())
+	f.close()
+	return (p, n, tuple(core), length) in larger_data.keys()
+	
+def make_human_readable(p, n, machine_path, human_path):
+	filename_from = machine_path + get_top_filename(p, n)
+	f = open(filename_from, "r")
+	data = eval(f.read())
+	f.close()
+	# TODO dump in human-readable format.
+
 def matrix_to_list(m):
 	return list(tuple(row) for row in m)
 
@@ -101,8 +147,7 @@ def block_truncate_raw_cones(p, n=None):
 	else:
 		principal_core = [principal_core]
 	# Look for principal block.
-	if os.path.isfile(settings.BLOCKED_CONES_DIRECTORY + get_top_filename(
-	 p, n, principal_core, -1)):
+	if fetch_exists(p, n, principal_core, -1):
 		# print "\tSkipping."
 		return
 	f = open(settings.RAW_CONES_DIRECTORY + filename, "r")
@@ -112,6 +157,7 @@ def block_truncate_raw_cones(p, n=None):
 	r = eval(s)
 	s = None # gc
 	gc.collect()
+	block_truncated = {}
 	for core in r.parts.p_cores:
 		# print "\tCore %s" % core
 		core_indices = [i for i in range(len(r.P_p)) if Partition(r.parts.partitions[i]).core(p) == core]
@@ -140,11 +186,10 @@ def block_truncate_raw_cones(p, n=None):
 				assert all(len(P_e) == len(parts) for P_e in P_es)
 			else:
 				pass # print "\t\t %s rows" % len(parts)
-			f = open(settings.BLOCKED_CONES_DIRECTORY + get_top_filename(
-	 		 p, n, core, length), "w")
-			f.write(repr(rec(P_p = P_p, P_es=P_es, parts=parts)))
-			f.close()
+	 		store_result(p, n, core, length, settings.BLOCKED_CONES_DIRECTORY + filename,
+			             rec(P_p = P_p, P_es=P_es, parts=parts))
 			gc.collect()
+
 def block_truncate_all_raw_cones():
 	for filename in sorted(os.listdir(settings.RAW_CONES_DIRECTORY),
 	 key = get_pncorelength_from_filename):
@@ -164,24 +209,21 @@ def generate_order_function(p):
 	return order_function
 ordering = generate_order_function(2) # Just for example. This should be changed when p is selected.
 
+# Block and truncate the true decomposition matrices.
 def block_truncate_dec_mats(p, n=None):
-	# print "block_truncate_dec_mats(%s, %s)" % (p, n)
 	if n is None:
 		filename = p
 		(p, n) = get_pncorelength_from_filename(filename)
 	else:
 		filename = get_top_filename(p,n)
 	if n >= 25:
-		# print "\tSkipping."
 		return
 	principal_core = n % p
 	if principal_core == 0:
 		principal_core = []
 	else:
 		principal_core = [principal_core]
-	# Look for principal block.
-	if os.path.isfile(settings.BLOCKED_CONES_DIRECTORY + get_top_filename(
-	 p, n, principal_core, -1)):
+	if fetch_exists(p, n, principal_core, -1, settings.BLOCKED_TRUE_CONES_DIRECTORY):
 		# print "\tSkipping."
 		return
 	f = open(settings.TRUE_CONES_DIRECTORY + filename, "r")
@@ -215,10 +257,8 @@ def block_truncate_dec_mats(p, n=None):
 				assert len(decmat) == len(parts)
 			else:
 				pass # print "\t\t %s rows" % len(parts)
-			f = open(settings.BLOCKED_CONES_DIRECTORY + get_top_filename(
-	 		 p, n, core, length), "w")
-			f.write(repr(rec(decmat = decmat, parts=parts)))
-			f.close()
+			store_result(p, n, core, length, settings.BLOCKED_TRUE_CONES_DIRECTORY,
+			             rec(decmat=decmat, parts=parts))
 			gc.collect()
 def block_truncate_all_dec_mats():
 	for filename in sorted(os.listdir(settings.TRUE_CONES_DIRECTORY),
@@ -272,14 +312,9 @@ def dualize(r):
 	 matrix(list(reversed(sorted(tuple(row.vector()) for row in r.intersection.Vrepresentation() if row.is_ray())))).transpose())
 
 def get_blocked_raw_cones(p, n=None, core=None, length=None):
-	if n is not None:
-		filename = settings.BLOCKED_CONES_DIRECTORY + get_top_filename(p, n, core, length)
-	else:
-		filename = p
-	f = open(filename, "r")
-	s = f.read()
-	f.close()
-	return eval(s)
+	if n not None:
+		(p, n, core, length) = get_pncorelength_from_filename(p)
+	return fetch_result(p, n, core, length, settings.BLOCKED_CONES_DIRECTORY)
 
 def is_p_regular(p, partition):
 	last_row = None
@@ -294,96 +329,58 @@ def is_p_regular(p, partition):
 			last_row_count = 1
 	return True
 def dualize_raw_cones(p, n=None, core=None, length=None):
-	# print "dualize_raw_cones(%s, %s, %s, %s)" %(p, n, core, length)
-	if os.path.isfile(settings.DUALTODO + get_top_filename(
-	 p, n, core, length)):
-		# print "\tSkipping."
-		return
 	if n is None:
 		(p, n, core, length) = get_pncorelength_from_filename(p)
-	#if p <= 5: # TODO this is just to skip some hard cases.
-	#	# print "\tSkipping."
-	#	return
-	if n > 20:
-		# print "\tSkipping."
+	if core is None:
+		for (p, n, core, length) in fetch_keys(p, n, settings.BLOCKED_CONES_DIRECTORY):
+			dualize_raw_cones(p, n, core, length)
 		return
-	try:
-		r = get_blocked_raw_cones(p, n, core, length)
-	except:
-		# print "\tFile retrieval Error."
-		return
-	try:
-		r = nonreduced_dual_cone_gens_raw(r.P_p, r.P_es, r.parts)
-	except:
-		# print "\tError occurred in processing."
-		return
-	filename = get_top_filename(p, n, core, length)
-	f = open(settings.DUALTODO + filename, "w")
-	f.write(repr(r))
-	f.close()
+	r = get_blocked_raw_cones(p, n, core, length)
+	r = nonreduced_dual_cone_gens_raw(r.P_p, r.P_es, r.parts)
+	store_result(p, n, core, length, settings.DUAL_CONES_DIRECTORY, r)
 def dualize_all_raw_cones():
 	for filename in sorted(os.listdir(settings.BLOCKED_CONES_DIRECTORY),
 	 key = get_pncorelength_from_filename):
-		# print(filename)
 		dualize_raw_cones(filename)
-		# print("Garbage collecting...")
 		gc.collect()
 def get_dualized_raw_cones(p, n=None, core=None, length=None):
-	if n is not None:
-		filename = settings.DUALTODO + get_top_filename(
-		 p, n, core, length)
-	else:
-		filename = settings.DUALTODO + p
-	f = open(filename, "r")
-	s = f.read()
-	f.close()
-	return eval(s)
+	if n is None:
+		p, n, core, length = get_pncorelength_from_filename(p)
+	return fetch_result(p, n, core, length, settings.DUAL_CONES_DIRECTORY)
 def intersect_raw_cones(p, n=None, core=None, length=None):
-	# print "intersect_raw_cones(%s, %s, %s, %s)" %(p, n, core, length)
-	if os.path.isfile(settings.INT_CONES_DIRECTORY + get_top_filename(
-	 p, n, core, length)):
-		# print "\tSkipping."
-		return
 	if n is None:
 		(p, n, core, length) = get_pncorelength_from_filename(p)
-	#if p <= 5: # TODO this is just to skip some hard cases.
-	#	print "\tSkipping."
-	#	return
-	if n > 20:
-		# print "\tSkipping."
+	if core is None:
+		for (p, n, core, length) in fetch_keys(p, n, settings.DUAL_CONES_DIRECTORY):
+			intersect_raw_cones(p, n, core, length)
+		return
+	if fetch_exists(p, n, core, length, settings.INT_CONES_DIRECTORY):
 		return
 	try:
 		r = get_dualized_raw_cones(p, n, core, length)
 	except:
-		# print "\tFile retrieval Error."
-		return
+		return # can't intersect cones.
 	try:
 		dualize(r)
 		del r.intersection
 		r.preg_parts = [part for part in r.parts if is_p_regular(p, part)]
 	except:
-		# print "\tError occurred in processing."
 		return
 	assert len(r.preg_parts) == len(r.intersection_adjustment_matrix)
-	filename = get_top_filename(p, n, core, length)
-	f = open(settings.INT_CONES_DIRECTORY + filename, "w")
-	f.write(repr(r))
-	f.close()
-	f = open(settings.INTCONESDISPLAYED_TODO + filename, "w")
-	f.write("Intersection of cones in adjustment matrix form.\n")
-	f.write(get_nice_string_rep_of_matrix([ ( (r.preg_parts[i],) + r.intersection_adjustment_matrix[i])
-	 for i in range(len(r.preg_parts))]))
-	f.write("\nHecke algebra decomposition matrix.\n")
-	f.write(get_nice_string_rep_of_matrix([ ( (r.parts[i],) + r.P_p[i])
+		
+	human_readable_parts = ["Intersection of cones in adjustment matrix form.\n"]
+	human_readable_parts.append(get_nice_string_rep_of_matrix([ ( (r.preg_parts[i],) + r.intersection_adjustment_matrix[i])
+	                                                                      for i in range(len(r.preg_parts))]))
+	human_readable_parts.append("\nHecke algebra decomposition matrix.\n")
+	human_readable_parts.append(get_nice_string_rep_of_matrix([ ( (r.parts[i],) + r.P_p[i])
 	 for i in range(len(r.parts))]))
-	f.close()
+	r.human = "".join(human_readable_parts)
+	store_result(p, n, core, length, settings.INT_CONES_DIRECTORY, r)
 
 def intersect_all_raw_cones():
 	for filename in sorted(os.listdir(settings.RAW_CONES_DIRECTORY),
 	 key = get_pncorelength_from_filename):
-		# print(filename)
 		intersect_raw_cones(filename)
-		# print("Garbage collecting...")
 		gc.collect()
 
 def get_part(partition):
@@ -406,15 +403,6 @@ def get_indexing_set(p, n, core, length, regular = True):
 			parts = [part for part in Partitions(n) if (part.core(p) == core)]
 	parts.sort(cmp=ordering)
 	return parts
-
-# Relevant partition tools
-# corners_residue
-# remove_cell
-# (seems like corners and inside corners are the same thing)
-# addable_cells
-# add_cell
-# addable_cells_residue
-
 
 # Compute the matrix corresponding to induction f_i where i=residue.
 def get_induct_matrix_to(p, n, core, length, residue):
@@ -440,30 +428,22 @@ def get_induct_matrix_to(p, n, core, length, residue):
 		core_downstairs = core_downstairs)
 
 def get_blocked_dec_mat(p, n, core, length):
-	f = open(settings.BLOCKED_CONES_DIRECTORY + 
-	 get_top_filename(p, n, core, length), "r")
-	s = f.read()
-	f.close()
-	return eval(s)
+	return fetch_result(p, n, core, length, settings.BLOCKED_TRUE_CONES_DIRECTORY)
 
 def get_intersected_cones(p, n, core, length):
-	f = open(settings.INT_CONES_DIRECTORY + 
-	 get_top_filename(p, n, core, length), "r")
-	s = f.read()
-	f.close()
-	return eval(s)
+	return fetch_result(p, n, core, length, settings.INT_CONES_DIRECTORY)
 
 def induce_true_dec_mats_to(p, n=None, core=None, length=None):
 	# print "induce_true_dec_mats_to(%s, %s, %s, %s)" %(p, n, core, length)
 	if n is None:
 		(p, n, core, length) = get_pncorelength_from_filename(p)
-	if not os.path.isfile("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/true_decomposition_matrices/" + 
-	 get_top_filename(p, n-1)):
-		# print "\tSkipping (don't have true dec mat)."
+	if not os.path.isfile(settings.TRUE_CONES_DIRECTORY + get_top_filename(p, n-1)):
 		return
-	filename = get_top_filename(p, n, core, length)
-	if os.path.isfile(settings.INDHUMAN_TODO + filename):
-		# print "\tSkipping (already did)."
+	if core is None:
+		for (p, n, core, length) in fetch_keys(p, n, settings.BLOCKED_TRUE_CONES_DIRECTORY):
+			induce_true_dec_mats_to(p, n, core, length)
+		return
+	if fetch_exists(p, n, core, length, settings.IND_HUMAN_DIRECTORY):
 		return
 	f_is = []
 	for residue in range(p):
@@ -486,20 +466,16 @@ def induce_true_dec_mats_to(p, n=None, core=None, length=None):
 		r.preg_parts = [part for part in r.parts if is_p_regular(p, part)]
 	P_p = matrix(r.P_p)
 	induced_adjustment_matrices = [matrix_to_list(P_p.solve_right(ind)) if ind is not None else None for ind in induced_dec_matrices]
-	# detailed f_i breakdown in machine readable format
-	# print "\tf_i_machine"
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/f_i_machine/" + filename, "w")
-	f.write(repr(rec(induced_adjustment_matrices=induced_adjustment_matrices, P_p = r.P_p, parts = r.preg_parts)))
-	f.close()
-	# detailed f_i breakdown in machine readable format
-	# print "\tf_i_human"
-	f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/f_i_human/" + filename, "w")
+	result = rec(induced_adjustment_matrices=induced_adjustment_matrices, P_p = r.P_p, parts = r.preg_parts)
+	human_f_is = []
 	for i in range(p):
 		if induced_adjustment_matrices[i] is not None:
-			f.write("f_%s in adjustment matrix format:\n" %i)
-			f.write(get_nice_string_rep_of_matrix([ ( (r.preg_parts[j],) + induced_adjustment_matrices[i][j])
+			human_f_is.append("f_%s in adjustment matrix format:\n" %i)
+			human_f_is.append(get_nice_string_rep_of_matrix([ ( (r.preg_parts[j],) + induced_adjustment_matrices[i][j])
 			 for j in range(len(r.preg_parts))]))
-			f.write("\n\n")
+			human_f_is.append("\n\n")
+	result.human = "".join(human_f_is)
+	store_result(p, n, core, length, settings.F_I_MACHINE, result)
 	f.close()
 	# print "\tGetting cone."
 	cone_generators = []
@@ -510,22 +486,14 @@ def induce_true_dec_mats_to(p, n=None, core=None, length=None):
 	poly = Polyhedron(rays = cone_generators)
 	cone = matrix_to_list(
 	 matrix(list(reversed(sorted(tuple(row.vector()) for row in poly.Vrepresentation() if row.is_ray())))).transpose())
-	# print "\t\tFor machine."
-	f = open(settings.INDUCED_MACHINE_TODO + filename, "w")
-	f.write(repr(rec(induced_cone = cone, P_p = r.P_p, preg_parts = r.preg_parts, parts = r.parts)))
-	f.close()
-	# print "\t\tFor hooman."
-	f = open(settings.INDHUMAN_TODO + filename, "w")
-	f.write(get_nice_string_rep_of_matrix([ ( (r.preg_parts[j],) + cone[j])
-	 for j in range(len(r.preg_parts))]))
-	f.write("\n")
-	f.close()
+	result = rec(induced_cone = cone, P_p = r.P_p, preg_parts = r.preg_parts, parts = r.parts)
+	result.human = get_nice_string_rep_of_matrix([ ( (r.preg_parts[j],) + cone[j])
+	                  for j in range(len(r.preg_parts))]) + "\n"
+	store_result(p, n, core, length, settings.IND_MACHINE_DIRECTORY, result)
 def induce_all_dec_mats():
 	for filename in sorted(os.listdir(settings.RAW_CONES_DIRECTORY),
 	 key = get_pncorelength_from_filename):
-		# print(filename)
 		induce_true_dec_mats_to(filename)
-		# print("Garbage collecting...")
 		gc.collect()
 
 def generate_contains_function(p_part):
@@ -536,20 +504,22 @@ def generate_poss_adj(p, n=None, core=None, length=None):
 	# print "generate_poss_adj(%s, %s, %s, %s)" %(p, n, core, length)
 	if n is None:
 		(p, n, core, length) = get_pncorelength_from_filename(p)
+	if core is None:
+		# TODO
 	filename = get_top_filename(p, n, core, length)
-	if not os.path.isfile(settings.INDUCED_MACHINE_TODO + filename):
+	if not fetch_exists(p, n, core, length, settings.IND_MACHINE_DIRECTORY):
 		# print "\tSkipping (don't have induced cone)."
 		return
-	if not os.path.isfile(settings.DUALTODO + filename):
+	if not os.path.isfile(settings.DUAL_CONES_DIRECTORY + filename):
 		# print "\tSkipping (don't have dual intersection of cones)."
 		return
-	if os.path.isfile(settings.POSS_HUMAN_TODO + filename):
+	if os.path.isfile(settings.POSS_HUMAN_DIRECTORY + filename):
 		# print "\tSkipping (already did)."
 		return
 	#if p <= 5: # TODO this is just to skip some hard cases.
 	#	print "\tSkipping."
 	#	return
-	f = open(settings.INDUCED_MACHINE_TODO + filename, "r")
+	f = open(settings.IND_MACHINE_DIRECTORY + filename, "r")
 	s = f.read()
 	f.close()
 	r_induced_cone = eval(s)
@@ -604,7 +574,7 @@ def generate_poss_adj(p, n=None, core=None, length=None):
 	# (1) the rays of the intersection of cones, or
 	# (2) the hecke algebra at p^2, p^3, etc. roots of unity (this will be harder).
 	try:
-		f = open("../../Dropbox/UCLA/Research/current_quarter/IntersectionConeUtils/intersection_raw_cones/" + filename, "r")
+		f = open(settings.INT_CONES_DIRECTORY + filename, "r")
 		s = f.read()
 		f.close()
 		r_intersection_cones = eval(s)
@@ -657,10 +627,10 @@ def generate_poss_adj(p, n=None, core=None, length=None):
 		# print "\tError occurred in processing."
 		return
 	# Whew! Finally, I need to record this in poss_adj_machine and poss_adj_human.
-	f = open(settings.POSS_MACHINE_TODO + filename, "w")
+	f = open(settings.POSS_MACHINE_DIRECTORY + filename, "w")
 	f.write(repr(rec(possible_adjustment_matrices = possible_adjustment_matrices, parts = parts)))
 	f.close()
-	f = open(settings.POSS_HUMAN_TODO + filename, "w")
+	f = open(settings.POSS_HUMAN_DIRECTORY + filename, "w")
 	for adj in possible_adjustment_matrices:
 		f.write(get_nice_string_rep_of_matrix([ ( (parts[j],) + adj[j])
 		 for j in range(square_dim)]))
@@ -669,44 +639,9 @@ def generate_poss_adj(p, n=None, core=None, length=None):
 	# Now pray all that works.
 	# Holy hell. All I had to do was fix a reference to first_nonzero_entry.
 def generate_all_poss_adj():
-	for filename in sorted(os.listdir(settings.INDUCED_MACHINE_TODO),
+	for filename in sorted(os.listdir(settings.INDUCED_MACHINE_DIRECTORY),
 	 key = get_pncorelength_from_filename):
 		# print(filename)
 		generate_poss_adj(filename)
 		# print("Garbage collecting...")
 		gc.collect()
-
-def clean_up_files():
-	for filename in sorted(os.listdir(settings.BLOCKED_CONES_DIRECTORY),
-	 key = get_pncorelength_from_filename):
-		f = open(settings.BLOCKED_CONES_DIRECTORY + filename, "r")
-		s = f.read()
-		f.close()
-		r = eval(s)
-		s = None
-		if len(r.P_p) == 0 or len(r.P_p[0]) <= 1:
-			# Now cleanup.
-			for directory in ("blocked_decomposition_matrices", "blocked_raw_cones", "displayed_intersection_raw_cones",
-			 "dual_raw_cones", "f_i_human", "f_i_machine", "induced_cone_human", "induced_cone_machine", "intersection_raw_cones",
-			 "poss_adj_human", "poss_adj_machine"):
-				toats = "%s/%s" % (directory, filename) # TODO update these to use settings.
-				if os.path.isfile(toats):
-					os.remove(toats)
-
-def are_files_clean():
-	count0 = 0
-	count1 = 0
-	countplus = 0
-	for filename in sorted(os.listdir(settings.BLOCKED_CONES_DIRECTORY),
-	 key = get_pncorelength_from_filename):
-		f = open(settings.BLOCKED_CONES_DIRECTORY + filename, "r")
-		s = f.read()
-		f.close()
-		r = eval(s)
-		s = None
-		if len(r.P_p) == 0:
-			count0 += 1
-		elif len(r.P_p[0]) <= 1:
-			count1 += 1
-		else:
-			countplus += 1

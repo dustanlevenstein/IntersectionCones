@@ -8,7 +8,8 @@ if os.path.isfile("paths.txt"):
     SAGE_FILENAME = directories["SAGE_FILENAME"]
 else:
     INTERSECTION_CONES_TOP_DIRECTORY = input("Enter the path for the IntersectionCones directory. ")
-    
+    GAP_FILENAME = input("Enter the path for gap.sh. ")
+    SAGE_FILENAME = input("Enter the path for the sage excecutable. ")
 
 
                               # Where you see "%s", read the top directory in

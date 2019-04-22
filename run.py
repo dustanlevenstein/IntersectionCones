@@ -26,21 +26,21 @@ RC_MAX_PRIME                 = input("Indicate the largest prime number for whic
                                 " you wish to generate Hecke algebra cones."
                                 " (e.g., 5.) ")
 RC_MIN_SYMMETRIC_GP_N        = input("Indicate the smallest symmetric group for"
-                                 " which you wish to generate cones.")
+                                 " which you wish to generate cones. ")
 RC_MAX_SYMMETRIC_GP_N        = input("Indicate the largest symmetric group for"
-                                 " which you wish to generate cones.")
+                                 " which you wish to generate cones. ")
 
 TRUE_CONES_DIRECTORY         = "%s/true_cones/"
 TC_MIN_PRIME                 = input("Indicate the smallest prime number for which"
-                             =  " you wish to generate Hecke algebra cones."
-                             =  " (2 would be a good choice.) ")
+                                " you wish to generate Hecke algebra cones."
+                                " (2 would be a good choice.) ")
 TC_MAX_PRIME                 = input("Indicate the largest prime number for which"
-                             =  " you wish to generate Hecke algebra cones."
-                             =  " (e.g., 5.) ")
+                                " you wish to generate Hecke algebra cones."
+                                " (e.g., 5.) ")
 TC_MIN_SYMMETRIC_GP_N        = input("Indicate the smallest symmetric group for"
-                             =   " which you wish to generate cones.")
+                                 " which you wish to generate true cones. ")
 TC_MAX_SYMMETRIC_GP_N        = input("Indicate the largest symmetric group for"
-                             =   " which you wish to generate cones.")
+                                 " which you wish to generate true cones. ")
 
 
 BLOCKED_CONES_DIRECTORY      = "%s/blocked_raw_cones/"
@@ -72,14 +72,6 @@ TRUE_CONES_DIRECTORY     = os.path.expanduser(TRUE_CONES_DIRECTORY     % INTERSE
 BLOCKED_CONES_DIRECTORY  = os.path.expanduser(BLOCKED_CONES_DIRECTORY  % INTERSECTION_CONES_TOP_DIRECTORY)
 INT_CONES_DIRECTORY      = os.path.expanduser(INT_CONES_DIRECTORY      % INTERSECTION_CONES_TOP_DIRECTORY)
 
-if MK_RC_DIRECTORY:
-    subprocess.run(["mkdir", RAW_CONES_DIRECTORY])
-if MK_TC_DIRECTORY:
-    subprocess.run(["mkdir", TRUE_CONES_DIRECTORY])
-if MK_BC_DIRECTORY:
-    subprocess.run(["mkdir", BLOCKED_CONES_DIRECTORY])
-if MK_IC_DIRECTORY:
-    subprocess.run(["mkdir", INT_CONES_DIRECTORY])
 # I'm sure there's a better way to communicate these settings forward,
 # but this is what I came up with.
 f = open("%s/settings.txt" % INTERSECTION_CONES_TOP_DIRECTORY, "w")

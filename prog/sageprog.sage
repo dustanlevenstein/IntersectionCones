@@ -223,9 +223,6 @@ def block_truncate_dec_mats(p, n=None):
 		principal_core = []
 	else:
 		principal_core = [principal_core]
-	if fetch_exists(p, n, principal_core, -1, settings.BLOCKED_TRUE_CONES_DIRECTORY):
-		# print "\tSkipping."
-		return
 	f = open(settings.TRUE_CONES_DIRECTORY + filename, "r")
 	s = f.read()
 	f.close()
@@ -354,8 +351,6 @@ def intersect_raw_cones(p, n=None, core=None, length=None):
 		for (p, n, core, length) in fetch_keys(p, n, settings.DUAL_CONES_DIRECTORY):
 			intersect_raw_cones(p, n, core, length)
 		return
-	if fetch_exists(p, n, core, length, settings.INT_CONES_DIRECTORY):
-		return
 	try:
 		r = get_dualized_raw_cones(p, n, core, length)
 	except:
@@ -443,8 +438,6 @@ def induce_true_dec_mats_to(p, n=None, core=None, length=None):
 		for (p, n, core, length) in fetch_keys(p, n, settings.BLOCKED_TRUE_CONES_DIRECTORY):
 			induce_true_dec_mats_to(p, n, core, length)
 		return
-	if fetch_exists(p, n, core, length, settings.IND_HUMAN_DIRECTORY):
-		return
 	f_is = []
 	for residue in range(p):
 		f_is.append(get_induct_matrix_to(p, n, core, length, residue))
@@ -505,24 +498,20 @@ def generate_poss_adj(p, n=None, core=None, length=None):
 	if n is None:
 		(p, n, core, length) = get_pncorelength_from_filename(p)
 	if core is None:
-		# TODO
+		for (p, n, core, length) in fetch_keys(p, n, settings.IND_MACHINE_DIRECTORY):
+			generate_poss_adj(p, n, core, length)
+		return
 	filename = get_top_filename(p, n, core, length)
 	if not fetch_exists(p, n, core, length, settings.IND_MACHINE_DIRECTORY):
 		# print "\tSkipping (don't have induced cone)."
 		return
-	if not os.path.isfile(settings.DUAL_CONES_DIRECTORY + filename):
+	if not fetch_exists(p, n, core, length, settings.DUAL_CONES_DIRECTORY):
 		# print "\tSkipping (don't have dual intersection of cones)."
-		return
-	if os.path.isfile(settings.POSS_HUMAN_DIRECTORY + filename):
-		# print "\tSkipping (already did)."
 		return
 	#if p <= 5: # TODO this is just to skip some hard cases.
 	#	print "\tSkipping."
 	#	return
-	f = open(settings.IND_MACHINE_DIRECTORY + filename, "r")
-	s = f.read()
-	f.close()
-	r_induced_cone = eval(s)
+	r_induced_cone = fetch_result(p, n, core, length, settings.IND_MACHINE_DIRECTORY)
 	r_dualized_intersection_cones = get_dualized_raw_cones(p, n, core, length)
 	induced_cone = r_induced_cone.induced_cone
 	dualized_cones = r_dualized_intersection_cones.p_part
@@ -536,19 +525,8 @@ def generate_poss_adj(p, n=None, core=None, length=None):
 	f = None
 	gc.collect()
 	induced_transposed = [tuple(induced_cone[j][i] for j in range(len(induced_cone))) for i in range(len(induced_cone[0]))]
-	##old method
-	##intersect_transposed = [tuple(intersection_cones[j][i] for j in range(len(intersection_cones)))
-	## for i in range(len(intersection_cones[0]))]
-	# I don't think I actually use this one.
-	# induced_poly = Polyhedron(rays = induced_transposed)
 	intersect_poly = rec(contains = generate_contains_function(dualized_cones))
-	# This part is being changed.
-	# intersect_poly = Polyhedron(rays = intersect_transposed)
-	# first nonzero entries of each column of the induced cone.
-	# Also note that the "columns" here became rows because I transposed, but I'm still going to call them columns.
 	first_nonzero_entries = tuple(min(i for i in range(len(column)) if column[i]) for column in induced_transposed)
-	# The induced cone gives direct upper bounds on the entries of the adjustment matrix.
-	# I'll name this "by column" to mean I'm not yet taking a min over all duplicate columns.
 	implied_upper_bounds_by_column = [
 	 tuple(induced_transposed[i][j]//induced_transposed[i][first_nonzero_entries[i]] for j in range(len(induced_transposed[i])))
 	 for i in range(len(induced_transposed))]
@@ -557,33 +535,13 @@ def generate_poss_adj(p, n=None, core=None, length=None):
 	 tuple(min(implied_upper_bounds_by_column[k][j] for k in range(len(induced_transposed)) if first_nonzero_entries[k] == i)
 	 for j in range(square_dim))
 	 for i in range(square_dim)]
-	# BAM. Now we have our upper bounds, and we compute lower bounds entry by entry using intersect_poly.
-	# # Old method: this was horribly wrong - the lower bounds generated are way too strong.
-	# # This is a list of lists instead of a list of tuples because I need to mutate it.
-	# lower_bounds = [ [ 1 if i == j else 0
-	#  for j in range(square_dim)]
-	#  for i in range(square_dim)]
-	# for i in range(square_dim):
-	# 	for j in range(i+1, square_dim):
-	# 		column = list(upper_bounds[i])
-	# 		# Now keep trying to decrease it until I fall outside the intersection of cones.
-	# 		while intersect_poly.contains(column):
-	# 			column[j] -= 1
-	# 		lower_bounds[i][j] = column[j] + 1
-	# New method: Use entries of either
+	# Now we have our upper bounds, and we compute lower bounds entry by entry using intersect_poly.
+	# Use entries of either
 	# (1) the rays of the intersection of cones, or
 	# (2) the hecke algebra at p^2, p^3, etc. roots of unity (this will be harder).
 	try:
-		f = open(settings.INT_CONES_DIRECTORY + filename, "r")
-		s = f.read()
-		f.close()
-		r_intersection_cones = eval(s)
-		s = None
+		r_intersection_cones = fetch_result(p, n, core, length, settings.INT_CONES_DIRECTORY)
 	except:
-		#print "\tSkipping; I'm not ready to try the case when I don't have the intersection of cones yet."
-		#raw_input()
-		#return
-		# print "\tUsing default lower bounds given by Hecke at a pth root of unity."
 		lower_bounds = [ [ 1 if i == j else 0
 		 for j in range(square_dim)]
 		 for i in range(square_dim)]
@@ -627,21 +585,18 @@ def generate_poss_adj(p, n=None, core=None, length=None):
 		# print "\tError occurred in processing."
 		return
 	# Whew! Finally, I need to record this in poss_adj_machine and poss_adj_human.
-	f = open(settings.POSS_MACHINE_DIRECTORY + filename, "w")
-	f.write(repr(rec(possible_adjustment_matrices = possible_adjustment_matrices, parts = parts)))
-	f.close()
-	f = open(settings.POSS_HUMAN_DIRECTORY + filename, "w")
+	result = rec(possible_adjustment_matrices = possible_adjustment_matrices, parts = parts)
+	human = []
 	for adj in possible_adjustment_matrices:
-		f.write(get_nice_string_rep_of_matrix([ ( (parts[j],) + adj[j])
+		human.append(get_nice_string_rep_of_matrix([ ( (parts[j],) + adj[j])
 		 for j in range(square_dim)]))
-		f.write("\n\n")
-	f.close()
-	# Now pray all that works.
-	# Holy hell. All I had to do was fix a reference to first_nonzero_entry.
+		human.append("\n\n")
+	result.human = "".join(human)
+	store_result(p, n, core, length, settings.POSS_MACHINE_DIRECTORY, result)
 def generate_all_poss_adj():
-	for filename in sorted(os.listdir(settings.INDUCED_MACHINE_DIRECTORY),
+	for filename in sorted(fetch_keysos.listdir(settings.INDUCED_MACHINE_DIRECTORY),
 	 key = get_pncorelength_from_filename):
-		# print(filename)
-		generate_poss_adj(filename)
-		# print("Garbage collecting...")
-		gc.collect()
+		p, n = get_pncorelength_from_filename(filename)
+		for (p, n, core, length) in fetch_keys(p, n, settings.INDUCED_MACHINE_DIRECTORY):
+			generate_poss_adj(filename)
+			gc.collect()

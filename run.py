@@ -1,13 +1,16 @@
-############ HEADER --- these attributes may require modifying. ############
+import os
+if os.path.isfile("paths.txt"):
+    f = open("paths.txt", "r")
+    directories = eval(f.read())
+    f.close()
+    INTERSECTION_CONES_TOP_DIRECTORY = directories["INTERSECTION_CONES_TOP_DIRECTORY"]
+    GAP_FILENAME  = directories["GAP_FILENAME"]
+    SAGE_FILENAME = directories["SAGE_FILENAME"]
+else:
+    INTERSECTION_CONES_TOP_DIRECTORY = input("Enter the path for the IntersectionCones directory. ")
+    
 
-REWRITE_SETTINGS         = True  # Change to False if you want to keep
-                                 # settings.txt as is.
 
-INTERSECTION_CONES_TOP_DIRECTORY = \
-	"~/Dropbox/IntersectionCones" # Exclude trailing slash.
-
-GAP_FILENAME                 = "~/Gap/gap-4.9.1/bin/gap.sh"
-SAGE_FILENAME                = "~/Sage/SageMath/sage"
                               # Where you see "%s", read the top directory in
                               # its place.
 GAP_PROGRAM_FILENAME         = "%s/prog/prog.g"
@@ -27,10 +30,17 @@ RC_MAX_SYMMETRIC_GP_N        = input("Indicate the largest symmetric group for"
                                  " which you wish to generate cones.")
 
 TRUE_CONES_DIRECTORY         = "%s/true_cones/"
-TC_MIN_PRIME                 = 2
-TC_MAX_PRIME                 = 5
-TC_MIN_SYMMETRIC_GP_N        = 1
-TC_MAX_SYMMETRIC_GP_N        = 10
+TC_MIN_PRIME                 = input("Indicate the smallest prime number for which"
+                             =  " you wish to generate Hecke algebra cones."
+                             =  " (2 would be a good choice.) ")
+TC_MAX_PRIME                 = input("Indicate the largest prime number for which"
+                             =  " you wish to generate Hecke algebra cones."
+                             =  " (e.g., 5.) ")
+TC_MIN_SYMMETRIC_GP_N        = input("Indicate the smallest symmetric group for"
+                             =   " which you wish to generate cones.")
+TC_MAX_SYMMETRIC_GP_N        = input("Indicate the largest symmetric group for"
+                             =   " which you wish to generate cones.")
+
 
 BLOCKED_CONES_DIRECTORY      = "%s/blocked_raw_cones/"
 BLOCKED_TRUE_CONES_DIRECTORY = "%s/blocked_true_cones/"
@@ -46,35 +56,33 @@ IND_MACHINE_DIRECTORY        = "%s/ind_machine/"
 POSS_MACHINE_DIRECTORY       = "%s/poss_adj_machine/"
 POSS_HUMAN_DIRECTORY         = "%s/poss_adj_human/"
 
-############    END HEADER - EDIT FOLLOWING AT YOUR OWN RISK    ############
 
-import subprocess, os
+import subprocess
 
-if REWRITE_SETTINGS:
-    INTERSECTION_CONES_TOP_DIRECTORY = os.path.expanduser(INTERSECTION_CONES_TOP_DIRECTORY)
+INTERSECTION_CONES_TOP_DIRECTORY = os.path.expanduser(INTERSECTION_CONES_TOP_DIRECTORY)
 
-    GAP_FILENAME             = os.path.expanduser(GAP_FILENAME )
-    SAGE_FILENAME            = os.path.expanduser(SAGE_FILENAME)
+GAP_FILENAME             = os.path.expanduser(GAP_FILENAME )
+SAGE_FILENAME            = os.path.expanduser(SAGE_FILENAME)
 
-    GAP_PROGRAM_FILENAME     = os.path.expanduser(GAP_PROGRAM_FILENAME     % INTERSECTION_CONES_TOP_DIRECTORY)
-    SAGE_PROGRAM_FILENAME    = os.path.expanduser(SAGE_PROGRAM_FILENAME    % INTERSECTION_CONES_TOP_DIRECTORY)
-    RAW_CONES_DIRECTORY      = os.path.expanduser(RAW_CONES_DIRECTORY      % INTERSECTION_CONES_TOP_DIRECTORY)
-    TRUE_CONES_DIRECTORY     = os.path.expanduser(TRUE_CONES_DIRECTORY     % INTERSECTION_CONES_TOP_DIRECTORY)
-    BLOCKED_CONES_DIRECTORY  = os.path.expanduser(BLOCKED_CONES_DIRECTORY  % INTERSECTION_CONES_TOP_DIRECTORY)
-    INT_CONES_DIRECTORY      = os.path.expanduser(INT_CONES_DIRECTORY      % INTERSECTION_CONES_TOP_DIRECTORY)
+GAP_PROGRAM_FILENAME     = os.path.expanduser(GAP_PROGRAM_FILENAME     % INTERSECTION_CONES_TOP_DIRECTORY)
+SAGE_PROGRAM_FILENAME    = os.path.expanduser(SAGE_PROGRAM_FILENAME    % INTERSECTION_CONES_TOP_DIRECTORY)
+RAW_CONES_DIRECTORY      = os.path.expanduser(RAW_CONES_DIRECTORY      % INTERSECTION_CONES_TOP_DIRECTORY)
+TRUE_CONES_DIRECTORY     = os.path.expanduser(TRUE_CONES_DIRECTORY     % INTERSECTION_CONES_TOP_DIRECTORY)
+BLOCKED_CONES_DIRECTORY  = os.path.expanduser(BLOCKED_CONES_DIRECTORY  % INTERSECTION_CONES_TOP_DIRECTORY)
+INT_CONES_DIRECTORY      = os.path.expanduser(INT_CONES_DIRECTORY      % INTERSECTION_CONES_TOP_DIRECTORY)
 
-    if MK_RC_DIRECTORY:
-        subprocess.run(["mkdir", RAW_CONES_DIRECTORY])
-    if MK_TC_DIRECTORY:
-        subprocess.run(["mkdir", TRUE_CONES_DIRECTORY])
-    if MK_BC_DIRECTORY:
-        subprocess.run(["mkdir", BLOCKED_CONES_DIRECTORY])
-    if MK_IC_DIRECTORY:
-        subprocess.run(["mkdir", INT_CONES_DIRECTORY])
-    # I'm sure there's a better way to communicate these settings forward,
-    # but this is what I came up with.
-    f = open("%s/settings.txt" % INTERSECTION_CONES_TOP_DIRECTORY, "w")
-    f.write(
+if MK_RC_DIRECTORY:
+    subprocess.run(["mkdir", RAW_CONES_DIRECTORY])
+if MK_TC_DIRECTORY:
+    subprocess.run(["mkdir", TRUE_CONES_DIRECTORY])
+if MK_BC_DIRECTORY:
+    subprocess.run(["mkdir", BLOCKED_CONES_DIRECTORY])
+if MK_IC_DIRECTORY:
+    subprocess.run(["mkdir", INT_CONES_DIRECTORY])
+# I'm sure there's a better way to communicate these settings forward,
+# but this is what I came up with.
+f = open("%s/settings.txt" % INTERSECTION_CONES_TOP_DIRECTORY, "w")
+f.write(
 	"""return rec(
 GAP_FILENAME                 := "%s",
 SAGE_FILENAME                := "%s",
@@ -127,10 +135,8 @@ IND_MACHINE_DIRECTORY       ,
 POSS_MACHINE_DIRECTORY      ,
 POSS_HUMAN_DIRECTORY        
     ))
-    f.flush()
-    f.close()
-else:
-    pass # TODO load the relevant settings.
+f.flush()
+f.close()
 
 subprocess.run(["sh", GAP_FILENAME, "-l", ";%s"%INTERSECTION_CONES_TOP_DIRECTORY, GAP_PROGRAM_FILENAME])
 subprocess.run([SAGE_FILENAME, SAGE_PROGRAM_FILENAME])

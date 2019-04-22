@@ -1,42 +1,5 @@
 # IntersectionCones
 
-Some settings will need to be changed. The python3.5+ script run.py manages the settings - simply go into the header of that file and edit the settings written there as needed.
+I'm going to make the execution of run.py as user-friendly as possible. On the first running, the user will need to enter the filenames where sage and GAP are installed. The GAP package hecke must also be installed. The user will also enter the path where the IntersectionCones directory can be found. It will be assumed that the subdirectory prog with prog.g and sageprog.g are loaded in that directory.
 
-## Settings
-
-The settings are as follows:
-
-### REWRITE\_SETTINGS
-
-Tells the python script whether or not to actually record the settings laid out in the header - otherwise settings.txt will not be changed.
-
-### INTERSECTION\_CONES\_TOP\_DIRECTORY
-
-The directory in which run.py lives. There should also be a subdirectory prog containing the gap and sage programs.
-
-### GAP\_FILENAME             
-### SAGE\_FILENAME            
-### GAP\_PROGRAM\_FILENAME    
-### SAGE\_PROGRAM\_FILENAME   
-### MK\_RC\_DIRECTORY         
-### RAW\_CONES\_DIRECTORY     
-### FILL\_RAW\_CONES          
-### RC\_MIN\_PRIME            
-### RC\_MAX\_PRIME            
-### RC\_MIN\_SYMMETRIC\_GP\_N   
-### RC\_MAX\_SYMMETRIC\_GP\_N   
-### MK\_TC\_DIRECTORY         
-### TRUE\_CONES\_DIRECTORY    
-### FILL\_TRUE\_CONES         
-### TC\_MIN\_PRIME            
-### TC\_MAX\_PRIME            
-### TC\_MIN\_SYMMETRIC\_GP\_N   
-### TC\_MAX\_SYMMETRIC\_GP\_N   
-### MK\_BC\_DIRECTORY         
-### BLOCKED\_CONES\_DIRECTORY 
-### FILL\_BC\_DIRECTORY       
-### OVERWRITE\_OLD\_BCS       
-### MK\_IC\_DIRECTORY         
-### INT\_CONES\_DIRECTORY     
-### FILL\_IC\_DIRECTORY       
-### OVERWRITE\_OLD\_ICS       
+In addition, on every run the user will be asked which hecke cones they want the GAP program to load, as well as which characteristic p cones. The sage program will then divide the cones into blocks and compute the relevant intersections. Note that the characteristic p cones are the cones we are attempting to approximate here, and they are unknown for large symmetric groups.

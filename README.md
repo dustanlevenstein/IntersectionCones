@@ -1,6 +1,8 @@
 # IntersectionCones
 
-See the pdf in theory\_explanation for a description of the underlying theory of this code.
+I rewrote the code to defrag the file generation process, and I'm currently decoding the results.
+
+See the pdf in theory\_explanation for a description of the underlying theory.
 
 I'm going to make the execution of run.py as user-friendly as possible. On the first running, the user will need to enter the filenames where sage and GAP are installed. The GAP package hecke must also be installed. The user will also enter the path where the IntersectionCones directory can be found. It will be assumed that the subdirectory prog with prog.g and sageprog.g are loaded in that directory.
 
